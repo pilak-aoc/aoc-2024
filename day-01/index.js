@@ -1,31 +1,60 @@
-// Retrieve the data
+// Retrieve the data.
 const data = await fetchData();
 
-// Parse data
-const sets = data.split("\n").reduce(
+// Parse data.
+const { left, right } = data.split("\n").reduce(
   (acc, line) => {
-    [item1, item2] = line.split(/ +/);
+    [left, right] = line.split(/ +/);
 
-    acc.setA.push(item1);
-    acc.setB.push(item2);
+    acc.left.push(left);
+    acc.right.push(right);
 
     return acc;
   },
-  { setA: [], setB: [] }
+  { left: [], right: [] }
 );
 
+//#region "Part 1"
+
 // Sort both sets
-sets.setA.sort();
-sets.setB.sort();
+left.sort();
+right.sort();
 
 // Sum the total distance
-let result = 0;
+let totalDistance = 0;
 
-for (let i = 0; i < sets.setA.length; i++) {
-  result += Math.abs(sets.setA[i] - sets.setB[i]);
+for (let i = 0; i < left.length; i++) {
+  totalDistance += Math.abs(left[i] - right[i]);
 }
 
-console.log("Total distance: ", result);
+console.log("Total distance: ", totalDistance);
+//#endregion
+
+//#region "Part 2"
+
+// Cache the number of instances.
+const instanceCache = {};
+
+let totalSimilarityScore = 0;
+
+for (let i = 0; i < left.length; i++) {
+  const locationId = left[i];
+
+  // Lookup from the cache.
+  // If it doesn't exists, then calculate the value.
+  let multiplier = instanceCache[locationId];
+  if (multiplier === undefined) {
+    multiplier = right.filter((locId) => locId === locationId).length;
+
+    instanceCache[locationId] = multiplier;
+  }
+
+  totalSimilarityScore += locationId * multiplier;
+}
+
+console.log("Total similarity score: ", totalSimilarityScore);
+
+//#endregion
 
 async function fetchData() {
   const url = "https://adventofcode.com/2024/day/1/input";
